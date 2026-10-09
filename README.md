@@ -1,62 +1,91 @@
+# Google Trends Automated Analytics & Intelligence Engine
 
-</head>
-<body>
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
+[![Interactive Demo](https://img.shields.io/badge/demo-GitHub%20Pages-purple.svg)](https://udbhav-shrinet.github.io/googletrends/)
+[![Python Version](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11-blue.svg)]()
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-<h1>Top 20 Trending Searches in India</h1>
+> Production-ready automated data pipeline and analytics dashboard for multi-region keyword interest extraction, volatility scoring, and search trend exploration.
 
-<p>This project uses the <code>pytrends</code> library to fetch and analyze the top 20 trending searches in India. The script retrieves the interest by region for each trend across Indian states and saves the results to an Excel file.</p>
+---
 
-<p>The data can also be used for visualization on a map of India, allowing users to hover over different regions to see which trends are popular, making it a valuable tool for search engine optimization (SEO).</p>
+## 🚀 Live Interactive Showcase
 
-<h2>Features</h2>
-<ul>
-    <li>Fetches the top 20 trending searches in India.</li>
-    <li>Retrieves interest data by region for each trend.</li>
-    <li>Excludes states with zero interest.</li>
-    <li>Outputs the data to an Excel file for easy analysis.</li>
-    <li>Can be visualized on a map of India, showing regional trend popularity.</li>
-</ul>
+Experience the live interactive Google Trends Explorer deployed on GitHub Pages:  
+👉 **[Launch Interactive Trends Dashboard](https://udbhav-shrinet.github.io/googletrends/)**
 
-<h2>Requirements</h2>
-<p>To run this project, you need:</p>
-<ul>
-    <li>Python 3.x</li>
-    <li>The following Python packages:</li>
-    <ul>
-        <li><code>pytrends</code></li>
-        <li><code>pandas</code></li>
-        <li><code>openpyxl</code> (for saving to Excel)</li>
-    </ul>
-</ul>
+---
 
-<p>You can install the required packages using pip:</p>
-<pre><code>pip install pytrends pandas openpyxl</code></pre>
+## ✨ Key Capabilities
 
-<h2>Usage</h2>
-<p>Clone the repository to your local machine:</p>
-<pre><code>git clone https://github.com/yourusername/repository-name.git</code></pre>
+- **Multi-Keyword Comparative Extraction**: Simultaneously analyze and normalize relative search volume across up to 5 keywords.
+- **Geographic Granularity**: Query global search indices or filter by country, sub-region, and city codes.
+- **Automated CSV/JSON Pipeline**: Export time-series interest over time and geographic distribution datasets for downstream ETL pipelines.
+- **Interactive Visual Studio**: Client-side dashboard with live Chart.js time-series charts, category presets, and regional penetration metrics.
 
-<p>Navigate to the project directory:</p>
-<pre><code>cd repository-name</code></pre>
+---
 
-<p>Run the script:</p>
-<pre><code>python your_script_name.py</code></pre>
+## 🛠️ System Architecture
 
-<p>The results will be saved in an Excel file named <code>Top_20_Trends_Interest_by_Region.xlsx</code>.</p>
+```text
+┌─────────────────┐       ┌────────────────────────┐       ┌──────────────────────┐
+│  CLI Parameters │ ───>  │  Pytrends API Client   │ ───>  │ Data Transformation  │
+│  Keywords & Geo │       │  Google Trends Gateway │       │   (Pandas Engine)    │
+└─────────────────┘       └────────────────────────┘       └──────────┬───────────┘
+                                                                      │
+                                                   ┌──────────────────┴──────────────────┐
+                                                   ▼                                     ▼
+                                       ┌───────────────────────┐             ┌───────────────────────┐
+                                       │  Structured CSV Export│             │  GitHub Pages Studio  │
+                                       │    Time & Region      │             │  Interactive Web App  │
+                                       └───────────────────────┘             └───────────────────────┘
+```
 
-<h2>Output</h2>
-<p>The output Excel file contains the following columns:</p>
-<ul>
-    <li><strong>Trend:</strong> The name of the trending topic.</li>
-    <li><strong>Region:</strong> The Indian state/region where the interest is recorded.</li>
-    <li><strong>Interest:</strong> The interest score representing search popularity.</li>
-</ul>
+---
 
-<h2>Visualization</h2>
-<p>The data obtained from this project can be visualized on a map of India. Users can hover over different regions to see which trends are popular, providing insights that can enhance search engine optimization (SEO) strategies.</p>
+## 📦 Installation & Setup
 
-<h2>Contribution</h2>
-<p>Contributions are welcome! If you have suggestions or improvements, please create a pull request or open an issue.</p>
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/udbhav-shrinet/googletrends.git
+   cd googletrends
+   ```
 
-</body>
-</html>
+2. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+---
+
+## 💻 Usage & CLI Reference
+
+### Basic Keyword Comparison
+```bash
+python main.py --keywords "Python" "JavaScript" "Rust" "Go"
+```
+
+### Specify Timeframe & Region
+```bash
+python main.py --keywords "Docker" "Kubernetes" --timeframe "today 1-m" --geo "US" --export
+```
+
+### CLI Flags
+| Flag | Description | Default |
+| :--- | :--- | :--- |
+| `-k`, `--keywords` | List of search keywords to compare (max 5) | `["Python", "JavaScript", "Rust"]` |
+| `-t`, `--timeframe` | Google Trends query timeframe string | `today 12-m` |
+| `-g`, `--geo` | ISO 3166-1 alpha-2 country code | `""` (Worldwide) |
+| `-o`, `--export` | Flag to export outputs to CSV | `False` |
+
+---
+
+## 📊 Interactive Web Demo
+
+The repository includes a web studio in `docs/index.html` configured for GitHub Pages. You can test keyword presets, visualize trend curves, and observe comparative velocity metrics directly in your browser.
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.

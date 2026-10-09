@@ -1,42 +1,64 @@
-# Import necessary libraries
-from pytrends.request import TrendReq
+"""
+Google Trends Automated Analytics & Extraction Engine
+Automated data pipeline for multi-region keyword interest extraction and comparative trend analysis.
+"""
+
+import argparse
+import sys
+import json
 import pandas as pd
-import time
+from datetime import datetime
 
-# Initialize pytrends
-pytrends = TrendReq(hl='en-US', tz=330)
+try:
+    from pytrends.request import TrendReq
+except ImportError:
+    TrendReq = None
 
-# Fetch top 20 trending searches in India
-trending_searches_df = pytrends.trending_searches(pn='india')
-top_20_trends = trending_searches_df.head(20)[0].tolist()  # Convert to list of trend topics
-
-# Prepare a list to store all data
-all_data = []
-
-# Loop through each trend and get interest by region for Indian states
-for trend in top_20_trends:
-    # Build the payload with the current trend
-    pytrends.build_payload([trend], geo='IN')
+def fetch_trends(keywords, timeframe='today 12-m', geo='', category=0):
+    if not TrendReq:
+        print("[ERROR] pytrends is not installed. Run 'pip install -r requirements.txt'")
+        return None
     
-    # Fetch interest by region data
-    interest_by_region_df = pytrends.interest_by_region(resolution='region')
+    print(f"[*] Initializing Google Trends connection for keywords: {keywords}")
+    pytrend = TrendReq(hl='en-US', tz=360, timeout=(10, 25))
+    pytrend.build_payload(kw_list=keywords, cat=category, timeframe=timeframe, geo=geo)
     
-    # Filter only non-zero states (indicating search interest in India)
-    interest_by_region_df = interest_by_region_df[interest_by_region_df[trend] > 0]
-    interest_by_region_df = interest_by_region_df.sort_values(by=trend, ascending=False)
+    df_iot = pytrend.interest_over_time()
+    if df_iot.empty:
+        print("[!] No interest over time data returned.")
+    else:
+        print(f"[+] Successfully extracted {len(df_iot)} historical time points.")
+        
+    df_region = pytrend.interest_by_region(resolution='COUNTRY', inc_low_vol=True, inc_geo_code=False)
     
-    # Store data with the specified format
-    for j, (region, interest) in enumerate(interest_by_region_df[trend].items(), start=1):
-        # Append each entry with the trend name, region, and interest score
-        all_data.append([trend, region, interest])
+    return {
+        "interest_over_time": df_iot,
+        "interest_by_region": df_region
+    }
+
+def export_data(data_dict, prefix="trends_output"):
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    if data_dict.get("interest_over_time") is not None and not data_dict["interest_over_time"].empty:
+        csv_file = f"{prefix}_time_{ts}.csv"
+        data_dict["interest_over_time"].to_csv(csv_file)
+        print(f"[+] Exported time series to {csv_file}")
+        
+    if data_dict.get("interest_by_region") is not None and not data_dict["interest_by_region"].empty:
+        csv_reg = f"{prefix}_region_{ts}.csv"
+        data_dict["interest_by_region"].to_csv(csv_reg)
+        print(f"[+] Exported regional data to {csv_reg}")
+
+def main():
+    parser = argparse.ArgumentParser(description="Google Trends Automated Analytics & Extraction Engine")
+    parser.add_argument("-k", "--keywords", nargs="+", default=["Python", "JavaScript", "Rust"], help="Keywords to compare (max 5)")
+    parser.add_argument("-t", "--timeframe", default="today 12-m", help="Timeframe (e.g., 'today 1-m', 'today 12-m', 'today 5-y')")
+    parser.add_argument("-g", "--geo", default="", help="Two-letter country code (e.g., 'US', 'GB', 'IN', or empty for global)")
+    parser.add_argument("-o", "--export", action="store_true", help="Export extracted metrics to CSV files")
     
-    # Sleep to avoid rate limiting by Google
-    time.sleep(1)
+    args = parser.parse_args()
+    results = fetch_trends(keywords=args.keywords[:5], timeframe=args.timeframe, geo=args.geo)
+    if results and args.export:
+        export_data(results)
 
-# Convert all data to a DataFrame
-df = pd.DataFrame(all_data, columns=["Trend", "Region", "Interest"])
-
-# Save DataFrame to an Excel file
-df.to_excel("Top_20_Trends_Interest_by_Region.xlsx", index=False)
-
-print("Data saved to Top_20_Trends_Interest_by_Region.xlsx")
+if __name__ == "__main__":
+    main()
