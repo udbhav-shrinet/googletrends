@@ -8,138 +8,119 @@ without requiring any API keys or tokens.
 """
 
 import sys
+import os
+import argparse
 import json
-import urllib.request
-import xml.etree.ElementTree as ET
-from datetime import datetime
+from datetime import datetime, timezone
+from generate_feed import (
+    get_google_trends,
+    get_hacker_news,
+    get_github_trending,
+    get_huggingface_trending,
+    get_arxiv_recent,
+    get_crypto_trending,
+    get_mastodon_trends,
+    get_techmeme,
+    get_bbc_news,
+    get_wikipedia_top,
+    build_snapshot
+)
 
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-}
+# ANSI terminal formatting
+BOLD = "\033[1m"
+DIM = "\033[2m"
+RESET = "\033[0m"
+PURPLE = "\033[38;2;192;132;252m"
+CYAN = "\033[36m"
+GREEN = "\033[32m"
+AMBER = "\033[33m"
+BLUE = "\033[34m"
+RED = "\033[31m"
 
-def fetch_json(url):
-    req = urllib.request.Request(url, headers=HEADERS)
-    with urllib.request.urlopen(req, timeout=8) as resp:
-        return json.loads(resp.read().decode('utf-8'))
+def print_banner():
+    banner = f"""
+{PURPLE}{BOLD}  ⚡ TRENDS — MULTI-PLATFORM SIGNAL INTELLIGENCE{RESET}
+{DIM}  Unified Real-Time Radar across 10+ Public Global Channels{RESET}
+{DIM}  Timestamp: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}{RESET}
+{"─" * 78}
+"""
+    print(banner)
 
-def fetch_xml(url):
-    req = urllib.request.Request(url, headers=HEADERS)
-    with urllib.request.urlopen(req, timeout=8) as resp:
-        return ET.fromstring(resp.read().decode('utf-8'))
-
-def get_hacker_news(limit=15):
-    items = []
-    try:
-        top_ids = fetch_json('https://hacker-news.firebaseio.com/v0/topstories.json')[:limit]
-        for sid in top_ids:
-            try:
-                story = fetch_json(f'https://hacker-news.firebaseio.com/v0/item/{sid}.json')
-                if story and 'title' in story:
-                    items.append({
-                        'source': 'Hacker News',
-                        'title': story.get('title'),
-                        'score': story.get('score', 0),
-                        'comments': story.get('descendants', 0),
-                        'url': story.get('url', f'https://news.ycombinator.com/item?id={sid}')
-                    })
-            except Exception:
-                continue
-    except Exception as e:
-        print(f"[!] Hacker News fetch error: {e}", file=sys.stderr)
-    return items
-
-def get_reddit(subreddit='all', limit=15):
-    items = []
-    try:
-        data = fetch_json(f'https://www.reddit.com/r/{subreddit}/hot.json?limit={limit}')
-        for child in data.get('data', {}).get('children', []):
-            d = child.get('data', {})
-            items.append({
-                'source': f'Reddit (r/{d.get("subreddit")})',
-                'title': d.get('title'),
-                'score': d.get('score', 0),
-                'comments': d.get('num_comments', 0),
-                'url': f'https://reddit.com{d.get("permalink")}'
-            })
-    except Exception as e:
-        print(f"[!] Reddit fetch error: {e}", file=sys.stderr)
-    return items
-
-def get_wikipedia_trending():
-    items = []
-    try:
-        yesterday = datetime.utcnow()
-        # YYYY/MM/DD
-        d_str = yesterday.strftime('%Y/%m/%d')
-        url = f'https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/{d_str}'
-        data = fetch_json(url)
-        articles = data.get('items', [{}])[0].get('articles', [])
-        for art in articles[:15]:
-            title = art.get('article', '').replace('_', ' ')
-            if title in ['Main Page', 'Special:Search', '-']:
-                continue
-            items.append({
-                'source': 'Wikipedia Trending',
-                'title': title,
-                'views': art.get('views', 0),
-                'url': f'https://en.wikipedia.org/wiki/{art.get("article")}'
-            })
-    except Exception as e:
-        print(f"[!] Wikipedia fetch error: {e}", file=sys.stderr)
-    return items
-
-def get_google_daily_trends(geo='US'):
-    items = []
-    try:
-        url = f'https://trends.google.com/trends/trending/rss?geo={geo}'
-        root = fetch_xml(url)
-        for item in root.findall('.//item'):
-            title = item.find('title')
-            traffic = item.find('{https://trends.google.com/trends/trending}approx_traffic')
-            link = item.find('link')
-            items.append({
-                'source': f'Google Trends ({geo})',
-                'title': title.text if title is not None else 'Unknown',
-                'traffic': traffic.text if traffic is not None else 'N/A',
-                'url': link.text if link is not None else ''
-            })
-    except Exception as e:
-        print(f"[!] Google Trends fetch error: {e}", file=sys.stderr)
-    return items
+def print_section(title, icon, items, max_items=8):
+    if not items:
+        return
+    print(f"\n{BOLD}{PURPLE}● {icon} {title.upper()}{RESET} {DIM}({len(items)} signals detected){RESET}")
+    print(f"{DIM}{'─' * 74}{RESET}")
+    for idx, it in enumerate(items[:max_items], 1):
+        name = it.get('title') or it.get('name') or 'Untitled'
+        source = it.get('source', '')
+        metric = it.get('metric', '')
+        url = it.get('url', '')
+        
+        print(f" {CYAN}{idx:2d}.{RESET} {BOLD}{name[:62]}{RESET}")
+        print(f"     {DIM}↳ [{source}] {metric}{RESET}")
+        if url:
+            print(f"       {DIM}{url[:70]}{RESET}")
 
 def main():
-    print("=" * 70)
-    print("🔥 TRENDS - Multi-Platform Real-Time Signal Ingestion")
-    print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("=" * 70)
-    
-    print("
-[+] Pulling Google Trends Daily Feed...")
-    g_trends = get_google_daily_trends('US')
-    for idx, t in enumerate(g_trends[:8], 1):
-        print(f" {idx:2d}. [Google {t['traffic']}] {t['title']}")
-        
-    print("
-[+] Pulling Reddit Top Signals (r/all)...")
-    r_trends = get_reddit('all', 8)
-    for idx, t in enumerate(r_trends[:8], 1):
-        print(f" {idx:2d}. [Reddit ▲{t['score']}] {t['title'][:65]}")
-        
-    print("
-[+] Pulling Hacker News Top Stories...")
-    hn_trends = get_hacker_news(8)
-    for idx, t in enumerate(hn_trends[:8], 1):
-        print(f" {idx:2d}. [HN ▲{t['score']}] {t['title'][:65]}")
+    parser = argparse.ArgumentParser(description="Multi-Platform Trend Intelligence Radar CLI")
+    parser.add_argument('--channel', choices=['all', 'search', 'tech', 'dev', 'ai', 'crypto', 'social', 'news'], default='all', help="Specific channel to inspect")
+    parser.add_argument('--limit', type=int, default=8, help="Max signals to display per channel")
+    parser.add_argument('--json', action='store_true', help="Output raw JSON signal bundle")
+    parser.add_argument('--build', action='store_true', help="Re-build docs/data.json snapshot for web dashboard")
+    args = parser.parse_args()
 
-    print("
-[+] Pulling Wikipedia Trending Topics...")
-    wiki_trends = get_wikipedia_trending()
-    for idx, t in enumerate(wiki_trends[:8], 1):
-        print(f" {idx:2d}. [Wiki {t.get('views', 0):,} views] {t['title']}")
+    if args.build:
+        print("[*] Rebuilding snapshot for web dashboard...")
+        payload = build_snapshot()
+        print(f"[✓] Done. Total signals: {payload['total_signals']}")
+        return
 
-    print("
-" + "=" * 70)
-    print("✓ Signals collected. Launch web dashboard: https://udbhav-shrinet.github.io/trends/")
+    if args.json:
+        payload = build_snapshot()
+        print(json.dumps(payload, indent=2))
+        return
+
+    print_banner()
+
+    if args.channel in ['all', 'search']:
+        gt = get_google_trends('US')
+        print_section("Google Trends (High Search Velocity)", "📈", gt, args.limit)
+
+    if args.channel in ['all', 'tech']:
+        hn = get_hacker_news(args.limit)
+        tm = get_techmeme()
+        print_section("Tech & Systems Discussions (Hacker News & Techmeme)", "💻", hn + tm, args.limit)
+
+    if args.channel in ['all', 'dev']:
+        gh = get_github_trending()
+        print_section("Developer Ecosystem (GitHub Trending Repos)", "⚡", gh, args.limit)
+
+    if args.channel in ['all', 'ai']:
+        hf = get_huggingface_trending()
+        arxiv = get_arxiv_recent()
+        print_section("AI & Research (Hugging Face Models & arXiv Papers)", "🤖", hf + arxiv, args.limit)
+
+    if args.channel in ['all', 'crypto']:
+        crypto, fng = get_crypto_trending()
+        print(f"\n{AMBER}{BOLD}💰 CRYPTO RADAR{RESET} {DIM}• Fear & Greed Index: {fng['value']} ({fng['sentiment']}){RESET}")
+        print_section("CoinGecko Trending Tokens", "💎", crypto, args.limit)
+
+    if args.channel in ['all', 'social']:
+        fedi, tags = get_mastodon_trends()
+        if tags:
+            print(f"\n{BOLD}{PURPLE}🏷️  TRENDING HASHTAGS:{RESET} {DIM}{', '.join(['#' + t for t in tags[:8]])}{RESET}")
+        print_section("Fediverse / Social Discussions (Mastodon)", "🌐", fedi, args.limit)
+
+    if args.channel in ['all', 'news']:
+        bbc = get_bbc_news()
+        wiki = get_wikipedia_top()
+        print_section("Global Awareness & Knowledge (BBC & Wikipedia Top Pageviews)", "🌍", bbc + wiki, args.limit)
+
+    print(f"\n{'─' * 78}")
+    print(f"{DIM}Tip: Run `python trends.py --channel ai` or explore the live web dashboard at:{RESET}")
+    print(f"{PURPLE}https://udbhav-shrinet.github.io/trends/{RESET}\n")
 
 if __name__ == '__main__':
     main()
+

@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trends — Real-Time Multi-Platform Signal Ingestion</title>
+    <title>Trends — Global Multi-Platform Trend Intelligence Radar</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -30,264 +30,350 @@
         }
     </script>
     <style>
-        body { background-color: #08070b; color: #f3f4f6; }
-        .glass-card { background: rgba(18, 14, 24, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(192, 132, 252, 0.12); }
-        .glass-card:hover { border-color: rgba(192, 132, 252, 0.35); }
-        .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: #34d399; box-shadow: 0 0 10px #34d399; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        .tab-btn.active { background: #9333ea; color: #ffffff; border-color: #a855f7; }
+        body { background-color: #07040a; color: #f3f4f6; }
+        .glass-card {
+            background: rgba(18, 10, 22, 0.72);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(192, 132, 252, 0.12);
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(192, 132, 252, 0.38);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -10px rgba(168, 85, 247, 0.18);
+        }
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #34d399;
+            box-shadow: 0 0 10px #34d399;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #9333ea, #7c3aed);
+            color: #ffffff;
+            border-color: #c084fc;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.35);
+        }
+        .ticker-wrap {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .ticker-move {
+            display: inline-block;
+            animation: marquee 55s linear infinite;
+        }
+        .ticker-move:hover { animation-play-state: paused; }
+        @keyframes marquee {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-50%, 0, 0); }
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #07040a; }
+        ::-webkit-scrollbar-thumb { background: #271a35; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #581c87; }
     </style>
 </head>
-<body class="font-sans min-h-screen flex flex-col">
-    <!-- Top Header -->
-    <header class="border-b border-purple-950/60 bg-[#0c0812]/90 backdrop-blur-md sticky top-0 z-50 px-6 py-3 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-purple-900/30">
+<body class="font-sans min-h-screen flex flex-col bg-[#07040a] text-zinc-100 selection:bg-purple-500 selection:text-white">
+
+    <!-- Top Status Ticker -->
+    <div class="border-b border-purple-950/40 bg-[#0d0714] text-[11px] font-mono py-1.5 px-4 overflow-hidden">
+        <div class="ticker-wrap flex items-center">
+            <span class="text-purple-400 font-semibold uppercase tracking-wider shrink-0 mr-3 flex items-center gap-1.5">
+                <span class="pulse-dot"></span> LIVE PULSE
+            </span>
+            <div id="tickerContent" class="ticker-move text-zinc-400">
+                Ingesting signals across Google Trends, Hacker News, GitHub Trending, Hugging Face, arXiv AI, CoinGecko, Mastodon, Techmeme, BBC News & Wikipedia...
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="border-b border-purple-950/60 bg-[#0b0612]/90 backdrop-blur-md sticky top-0 z-50 px-6 py-3.5 flex items-center justify-between">
+        <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-fuchsia-600 to-indigo-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-purple-950/60 ring-1 ring-purple-400/30">
                 ⚡
             </div>
             <div>
-                <div class="flex items-center gap-2">
-                    <h1 class="text-base font-bold tracking-tight text-white">Trends</h1>
-                    <span class="px-2 py-0.5 text-[10px] font-mono font-semibold bg-purple-900/40 border border-purple-700/50 text-purple-300 rounded-full">REAL-TIME MULTI-FEED</span>
+                <div class="flex items-center gap-2.5">
+                    <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                        TRENDS
+                        <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-purple-900/50 text-purple-300 border border-purple-700/50">RADAR v3.0</span>
+                    </h1>
                 </div>
-                <p class="text-xs text-zinc-400">Zero API Key Cross-Platform Trend Radar</p>
+                <p class="text-xs text-zinc-400">Autonomous Multi-Platform Trend Intelligence & Daily Internet Pulse</p>
             </div>
         </div>
 
-        <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2 text-xs text-zinc-400 font-mono">
-                <div class="pulse-dot"></div>
-                <span id="liveStatus">Live Ingestion Active</span>
+        <div class="flex items-center gap-3">
+            <div class="hidden sm:flex items-center gap-2 text-xs font-mono text-zinc-400 px-3 py-1 bg-purple-950/30 rounded-lg border border-purple-900/40">
+                <span class="text-zinc-500">Updated:</span>
+                <span id="updateTime" class="text-purple-300 font-semibold">Live Snapshot</span>
             </div>
-            <button onclick="refreshAllSignals()" class="px-3 py-1.5 bg-purple-900/40 hover:bg-purple-800/60 border border-purple-700/50 text-purple-200 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                Sync All Feeds
+            <button onclick="refreshData()" class="px-3 py-1.5 bg-purple-950/60 hover:bg-purple-900/80 border border-purple-700/60 text-purple-200 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 shadow-sm hover:shadow-purple-900/40">
+                <svg class="w-3.5 h-3.5 animate-spin-reverse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                Sync Feeds
             </button>
-            <a href="https://github.com/udbhav-shrinet/trends" target="_blank" class="text-xs font-semibold text-zinc-400 hover:text-white transition-colors">GitHub Repo →</a>
+            <a href="https://github.com/udbhav-shrinet/trends" target="_blank" class="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                GitHub
+            </a>
         </div>
     </header>
 
-    <main class="max-w-7xl w-full mx-auto px-6 py-8 flex-1">
-        <!-- Hero Metrics -->
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
-            <div class="glass-card rounded-xl p-4">
-                <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Signals Tracked</div>
-                <div class="text-2xl font-black text-white mt-1 font-mono" id="statCount">--</div>
-                <div class="text-[10px] text-emerald-400 font-mono mt-0.5">● Multi-Source Unified</div>
+    <main class="max-w-7xl w-full mx-auto px-6 py-7 flex-1">
+
+        <!-- Top Snapshot & Analytics Radar -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+            <div class="glass-card rounded-xl p-3.5 border-l-2 border-l-purple-500">
+                <div class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Total Signals</div>
+                <div class="text-2xl font-black text-white mt-0.5 font-mono" id="statTotal">--</div>
+                <div class="text-[10px] text-emerald-400 font-mono mt-0.5 flex items-center gap-1">
+                    <span>●</span> 10 Channels Active
+                </div>
             </div>
-            <div class="glass-card rounded-xl p-4">
-                <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Google Trends</div>
-                <div class="text-2xl font-black text-purple-300 mt-1 font-mono" id="statGoogle">--</div>
-                <div class="text-[10px] text-zinc-400 font-mono mt-0.5">Daily Volume Feeds</div>
+
+            <div class="glass-card rounded-xl p-3.5 border-l-2 border-l-fuchsia-500">
+                <div class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Search Velocity</div>
+                <div class="text-2xl font-black text-fuchsia-300 mt-0.5 font-mono" id="statSearch">--</div>
+                <div class="text-[10px] text-zinc-400 font-mono mt-0.5">Google US & Global</div>
             </div>
-            <div class="glass-card rounded-xl p-4">
-                <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Reddit Hot</div>
-                <div class="text-2xl font-black text-orange-400 mt-1 font-mono" id="statReddit">--</div>
-                <div class="text-[10px] text-zinc-400 font-mono mt-0.5">Community Upvotes</div>
+
+            <div class="glass-card rounded-xl p-3.5 border-l-2 border-l-amber-500">
+                <div class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Tech Discourse</div>
+                <div class="text-2xl font-black text-amber-300 mt-0.5 font-mono" id="statTech">--</div>
+                <div class="text-[10px] text-zinc-400 font-mono mt-0.5">HN & Techmeme</div>
             </div>
-            <div class="glass-card rounded-xl p-4">
-                <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Hacker News</div>
-                <div class="text-2xl font-black text-amber-400 mt-1 font-mono" id="statHN">--</div>
-                <div class="text-[10px] text-zinc-400 font-mono mt-0.5">Tech & Systems</div>
+
+            <div class="glass-card rounded-xl p-3.5 border-l-2 border-l-emerald-500">
+                <div class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Code & Open Source</div>
+                <div class="text-2xl font-black text-emerald-300 mt-0.5 font-mono" id="statDev">--</div>
+                <div class="text-[10px] text-zinc-400 font-mono mt-0.5">GitHub Trending</div>
             </div>
-            <div class="glass-card rounded-xl p-4">
-                <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">Wikipedia Top</div>
-                <div class="text-2xl font-black text-sky-400 mt-1 font-mono" id="statWiki">--</div>
-                <div class="text-[10px] text-zinc-400 font-mono mt-0.5">Global Pageviews</div>
+
+            <div class="glass-card rounded-xl p-3.5 border-l-2 border-l-indigo-500">
+                <div class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">AI Breakthroughs</div>
+                <div class="text-2xl font-black text-indigo-300 mt-0.5 font-mono" id="statAI">--</div>
+                <div class="text-[10px] text-zinc-400 font-mono mt-0.5">HF Models & arXiv</div>
+            </div>
+
+            <div class="glass-card rounded-xl p-3.5 border-l-2 border-l-rose-500">
+                <div class="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">Fear & Greed Index</div>
+                <div class="text-2xl font-black text-rose-300 mt-0.5 font-mono" id="statFnG">--</div>
+                <div class="text-[10px] text-zinc-400 font-mono mt-0.5" id="statFnGLabel">Sentiment</div>
             </div>
         </div>
 
-        <!-- Filter & Tab Controls -->
+        <!-- Trending Tags Pill Banner -->
+        <div id="tagsBar" class="glass-card rounded-xl px-4 py-2.5 mb-6 flex items-center gap-3 overflow-x-auto text-xs font-mono">
+            <span class="text-purple-400 font-semibold shrink-0 flex items-center gap-1">
+                🏷️ VIRAL TAGS:
+            </span>
+            <div id="tagsList" class="flex items-center gap-2 shrink-0">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- Filter Controls & Actions -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-            <div class="flex flex-wrap gap-2">
-                <button onclick="setTab('all')" class="tab-btn active px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white transition-all">🔥 All Feeds</button>
-                <button onclick="setTab('google')" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white transition-all">📈 Google Search</button>
-                <button onclick="setTab('reddit')" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white transition-all">👾 Reddit r/all</button>
-                <button onclick="setTab('hn')" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white transition-all">💻 Hacker News</button>
-                <button onclick="setTab('wiki')" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold border border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white transition-all">📚 Wikipedia Top</button>
+            <div class="flex flex-wrap gap-1.5 p-1 bg-[#100918] rounded-xl border border-purple-950/60">
+                <button onclick="setChannel('all', this)" class="tab-btn active px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-300 transition-all flex items-center gap-1.5">
+                    🔥 <span>All Signals</span>
+                </button>
+                <button onclick="setChannel('search', this)" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-300 transition-all flex items-center gap-1.5">
+                    📈 <span>Search Trends</span>
+                </button>
+                <button onclick="setChannel('tech', this)" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-300 transition-all flex items-center gap-1.5">
+                    💻 <span>Tech & Systems</span>
+                </button>
+                <button onclick="setChannel('dev', this)" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-300 transition-all flex items-center gap-1.5">
+                    ⚡ <span>Dev / GitHub</span>
+                </button>
+                <button onclick="setChannel('ai', this)" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-300 transition-all flex items-center gap-1.5">
+                    🤖 <span>AI & Research</span>
+                </button>
+                <button onclick="setChannel('finance', this)" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-300 transition-all flex items-center gap-1.5">
+                    💎 <span>Crypto / Macro</span>
+                </button>
+                <button onclick="setChannel('social', this)" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-300 transition-all flex items-center gap-1.5">
+                    🌐 <span>Fediverse / Social</span>
+                </button>
+                <button onclick="setChannel('global', this)" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-zinc-300 transition-all flex items-center gap-1.5">
+                    🌍 <span>World & Wiki</span>
+                </button>
             </div>
 
-            <div class="flex items-center gap-3 w-full md:w-auto">
+            <div class="flex items-center gap-2.5 w-full md:w-auto">
                 <div class="relative w-full md:w-64">
-                    <input type="text" id="searchInput" oninput="renderCards()" placeholder="Search keyword or topic..." class="w-full bg-[#120a16] border border-purple-900/40 rounded-lg px-3 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-purple-500 font-mono placeholder:text-zinc-500">
+                    <input type="text" id="searchInput" oninput="renderCards()" placeholder="Filter trends or topics..." class="w-full bg-[#120a16] border border-purple-900/40 rounded-lg px-3 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-purple-500 font-mono placeholder:text-zinc-600 transition-colors">
                 </div>
-                <button onclick="exportJSON()" class="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap">
+                <button onclick="exportJSON()" class="px-3 py-1.5 bg-[#120a16] hover:bg-purple-950/60 border border-purple-900/40 text-purple-200 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                     Export JSON
                 </button>
             </div>
         </div>
 
-        <!-- Content Grid -->
-        <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Populated via JS -->
-            <div class="col-span-full py-16 text-center text-zinc-500 text-sm font-mono">
-                Ingesting signals across live endpoints...
+        <!-- Grid of Signal Cards -->
+        <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            <div class="col-span-full py-20 text-center text-zinc-500 font-mono text-sm">
+                Synchronizing signals across global data streams...
             </div>
         </div>
     </main>
 
-    <footer class="border-t border-purple-950/40 bg-[#08050c] px-6 py-6 text-center text-xs text-zinc-500 font-mono">
-        Trends Intelligence Engine • Engineered by Udbhav Shrinet • Open Source & No API Key Required
+    <!-- Footer -->
+    <footer class="border-t border-purple-950/40 bg-[#08040d] px-6 py-6 text-center text-xs text-zinc-500 font-mono">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div>
+                Trends Intelligence Engine • Engineered by <span class="text-purple-300 font-semibold">Udbhav Shrinet</span>
+            </div>
+            <div class="flex items-center gap-4 text-[11px]">
+                <span>Zero API Keys</span>
+                <span>•</span>
+                <span>10+ Public Feeds</span>
+                <span>•</span>
+                <a href="https://github.com/udbhav-shrinet/trends" class="text-purple-400 hover:underline">MIT License</a>
+            </div>
+        </div>
     </footer>
 
     <script>
-        let allItems = [];
-        let currentTab = 'all';
+        let snapshotData = null;
+        let currentChannel = 'all';
 
-        async function fetchHackerNews() {
+        const BADGE_THEMES = {
+            'search': 'bg-fuchsia-950/60 text-fuchsia-300 border-fuchsia-800/50',
+            'tech': 'bg-amber-950/60 text-amber-300 border-amber-800/50',
+            'dev': 'bg-emerald-950/60 text-emerald-300 border-emerald-800/50',
+            'ai': 'bg-indigo-950/60 text-indigo-300 border-indigo-800/50',
+            'finance': 'bg-yellow-950/60 text-yellow-300 border-yellow-800/50',
+            'social': 'bg-purple-950/60 text-purple-300 border-purple-800/50',
+            'global': 'bg-sky-950/60 text-sky-300 border-sky-800/50'
+        };
+
+        async function refreshData() {
             try {
-                const res = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
-                const ids = (await res.json()).slice(0, 15);
-                const promises = ids.map(id => fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(r => r.json()));
-                const stories = await Promise.all(promises);
-                return stories.filter(s => s && s.title).map(s => ({
-                    source: 'Hacker News',
-                    category: 'hn',
-                    badgeColor: 'bg-amber-950/60 text-amber-400 border-amber-800/50',
-                    title: s.title,
-                    meta: `▲ ${s.score || 0} pts • 💬 ${s.descendants || 0} comments`,
-                    url: s.url || `https://news.ycombinator.com/item?id=${s.id}`,
-                    rawScore: s.score || 0
-                }));
+                const res = await fetch('data.json?t=' + Date.now());
+                if (!res.ok) throw new Error('Data fetch failed');
+                snapshotData = await res.json();
+                applyData();
             } catch (err) {
-                console.warn('HN fetch failed', err);
-                return [];
+                console.warn('Direct data.json fetch failed, retrying...', err);
+                document.getElementById('cardsGrid').innerHTML = '<div class="col-span-full py-16 text-center text-zinc-400 font-mono text-xs">Failed to load data.json. Ensure file exists in root docs.</div>';
             }
         }
 
-        async function fetchReddit() {
-            try {
-                const res = await fetch('https://www.reddit.com/r/all/hot.json?limit=25');
-                const data = await res.json();
-                return (data.data?.children || []).map(c => {
-                    const d = c.data;
-                    return {
-                        source: `Reddit (r/${d.subreddit})`,
-                        category: 'reddit',
-                        badgeColor: 'bg-orange-950/60 text-orange-400 border-orange-800/50',
-                        title: d.title,
-                        meta: `▲ ${Number(d.score).toLocaleString()} • 💬 ${d.num_comments} comments`,
-                        url: `https://reddit.com${d.permalink}`,
-                        rawScore: d.score || 0
-                    };
-                });
-            } catch (err) {
-                console.warn('Reddit fetch failed', err);
-                return [];
-            }
-        }
+        function applyData() {
+            if (!snapshotData) return;
 
-        async function fetchWikipedia() {
-            try {
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                const yyyy = yesterday.getFullYear();
-                const mm = String(yesterday.getMonth() + 1).padStart(2, '0');
-                const dd = String(yesterday.getDate()).padStart(2, '0');
-                const res = await fetch(`https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikipedia/all-access/${yyyy}/${mm}/${dd}`);
-                const data = await res.json();
-                const articles = data.items?.[0]?.articles || [];
-                return articles.slice(0, 20).filter(a => !['Main_Page', 'Special:Search', '-'].includes(a.article)).map(a => ({
-                    source: 'Wikipedia Trending',
-                    category: 'wiki',
-                    badgeColor: 'bg-sky-950/60 text-sky-400 border-sky-800/50',
-                    title: a.article.replace(/_/g, ' '),
-                    meta: `👁️ ${Number(a.views).toLocaleString()} views yesterday`,
-                    url: `https://en.wikipedia.org/wiki/${a.article}`,
-                    rawScore: a.views || 0
-                }));
-            } catch (err) {
-                console.warn('Wiki fetch failed', err);
-                return [];
-            }
-        }
-
-        async function fetchGoogleTrends() {
-            // Curated active high-velocity fallback signals from Google Daily Search Trends
-            return [
-                { source: 'Google Trends (US)', category: 'google', badgeColor: 'bg-purple-950/60 text-purple-300 border-purple-800/50', title: 'Next-Gen Quantum Model Release & Benchmark Data', meta: '🔥 500K+ searches • High Velocity', url: 'https://trends.google.com/trends/trendingsearches/daily', rawScore: 500000 },
-                { source: 'Google Trends (Global)', category: 'google', badgeColor: 'bg-purple-950/60 text-purple-300 border-purple-800/50', title: 'Champions League Quarter Finals Highlights', meta: '🔥 200K+ searches • Sports', url: 'https://trends.google.com/trends/trendingsearches/daily', rawScore: 200000 },
-                { source: 'Google Trends (US)', category: 'google', badgeColor: 'bg-purple-950/60 text-purple-300 border-purple-800/50', title: 'Federal Reserve Interest Rate Cut Speculation', meta: '🔥 100K+ searches • Finance', url: 'https://trends.google.com/trends/trendingsearches/daily', rawScore: 100000 },
-                { source: 'Google Trends (Global)', category: 'google', badgeColor: 'bg-purple-950/60 text-purple-300 border-purple-800/50', title: 'SpaceX Starship Orbital Test Flight Success', meta: '🔥 150K+ searches • Aerospace', url: 'https://trends.google.com/trends/trendingsearches/daily', rawScore: 150000 },
-                { source: 'Google Trends (US)', category: 'google', badgeColor: 'bg-purple-950/60 text-purple-300 border-purple-800/50', title: 'NVIDIA GTC Quantum Computing Keynote', meta: '🔥 80K+ searches • Technology', url: 'https://trends.google.com/trends/trendingsearches/daily', rawScore: 80000 }
-            ];
-        }
-
-        async function refreshAllSignals() {
-            document.getElementById('liveStatus').textContent = 'Syncing...';
-            const [hn, reddit, wiki, google] = await Promise.all([
-                fetchHackerNews(),
-                fetchReddit(),
-                fetchWikipedia(),
-                fetchGoogleTrends()
-            ]);
-
-            allItems = [...google, ...reddit, ...hn, ...wiki];
+            document.getElementById('updateTime').textContent = snapshotData.generated_at || 'Just now';
+            document.getElementById('statTotal').textContent = snapshotData.total_signals || snapshotData.all_signals?.length || 0;
             
-            document.getElementById('statCount').textContent = allItems.length;
-            document.getElementById('statGoogle').textContent = google.length;
-            document.getElementById('statReddit').textContent = reddit.length;
-            document.getElementById('statHN').textContent = hn.length;
-            document.getElementById('statWiki').textContent = wiki.length;
-            document.getElementById('liveStatus').textContent = 'Live Ingestion Active';
+            const metrics = snapshotData.metrics || {};
+            document.getElementById('statSearch').textContent = metrics.google_trends || 0;
+            document.getElementById('statTech').textContent = (metrics.hacker_news || 0) + (metrics.techmeme || 0);
+            document.getElementById('statDev').textContent = metrics.github || 0;
+            document.getElementById('statAI').textContent = (metrics.huggingface || 0) + (metrics.arxiv || 0);
+            
+            const fng = snapshotData.sentiment?.fear_and_greed;
+            if (fng) {
+                document.getElementById('statFnG').textContent = fng.value;
+                document.getElementById('statFnGLabel').textContent = fng.sentiment;
+            }
+
+            const top5 = (snapshotData.all_signals || []).slice(0, 10).map(s => `[${s.source}] ${s.title}`).join('   •   ');
+            document.getElementById('tickerContent').textContent = top5 + '   •   ' + top5;
+
+            const tags = snapshotData.sentiment?.trending_tags || [];
+            const tagsContainer = document.getElementById('tagsList');
+            if (tags.length > 0) {
+                tagsContainer.innerHTML = tags.map(t => `
+                    <span class="px-2 py-0.5 rounded-md bg-purple-950/70 border border-purple-800/50 text-purple-300 text-[11px]">#${t}</span>
+                `).join('');
+                document.getElementById('tagsBar').style.display = 'flex';
+            } else {
+                document.getElementById('tagsBar').style.display = 'none';
+            }
 
             renderCards();
         }
 
-        function setTab(tab) {
-            currentTab = tab;
+        function setChannel(ch, btnEl) {
+            currentChannel = ch;
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if (btnEl) {
+                btnEl.classList.add('active');
+            }
             renderCards();
         }
 
         function renderCards() {
+            if (!snapshotData || !snapshotData.all_signals) return;
+
             const query = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
-            const filtered = allItems.filter(item => {
-                const matchTab = currentTab === 'all' || item.category === currentTab;
-                const matchQuery = !query || item.title.toLowerCase().includes(query) || item.source.toLowerCase().includes(query);
-                return matchTab && matchQuery;
+            const filtered = snapshotData.all_signals.filter(item => {
+                const matchChannel = currentChannel === 'all' || item.category === currentChannel;
+                const matchQuery = !query || 
+                    (item.title && item.title.toLowerCase().includes(query)) ||
+                    (item.source && item.source.toLowerCase().includes(query)) ||
+                    (item.description && item.description.toLowerCase().includes(query)) ||
+                    (item.badge && item.badge.toLowerCase().includes(query));
+                return matchChannel && matchQuery;
             });
 
             const grid = document.getElementById('cardsGrid');
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-12 text-center text-zinc-500 font-mono text-xs">No matching trends found.</div>`;
+                grid.innerHTML = `<div class="col-span-full py-16 text-center text-zinc-500 font-mono text-xs">No matching trends found for current filter.</div>`;
                 return;
             }
 
-            grid.innerHTML = filtered.map(item => `
-                <div class="glass-card rounded-xl p-4 flex flex-col justify-between transition-all group">
-                    <div>
-                        <div class="flex items-center justify-between gap-2 mb-2.5">
-                            <span class="px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md border ${item.badgeColor}">
-                                ${item.source}
-                            </span>
-                            <span class="text-[10px] text-zinc-500 font-mono">Real-Time</span>
+            grid.innerHTML = filtered.map(item => {
+                const badgeClass = BADGE_THEMES[item.category] || 'bg-zinc-800 text-zinc-300 border-zinc-700';
+                const desc = item.description || item.snippet || '';
+                return `
+                    <div class="glass-card rounded-xl p-4 flex flex-col justify-between group">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <span class="px-2 py-0.5 text-[10px] font-mono font-semibold rounded-md border ${badgeClass}">
+                                    ${item.source}
+                                </span>
+                                <span class="text-[10px] text-zinc-500 font-mono uppercase tracking-wider">${item.badge || 'Signal'}</span>
+                            </div>
+                            <h3 class="text-sm font-semibold text-zinc-100 group-hover:text-purple-300 transition-colors line-clamp-2 leading-snug">
+                                ${escapeHtml(item.title)}
+                            </h3>
+                            ${desc ? `<p class="mt-2 text-xs text-zinc-400 line-clamp-2 leading-relaxed">${escapeHtml(desc)}</p>` : ''}
                         </div>
-                        <h3 class="text-sm font-semibold text-zinc-100 group-hover:text-purple-300 transition-colors line-clamp-3 leading-snug">
-                            ${item.title}
-                        </h3>
+                        <div class="mt-3.5 pt-3 border-t border-purple-950/40 flex items-center justify-between text-xs">
+                            <span class="text-[11px] font-mono text-zinc-400 truncate max-w-[210px]">${item.metric || ''}</span>
+                            <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="text-purple-400 hover:text-purple-300 font-mono text-xs font-semibold flex items-center gap-1 shrink-0 ml-2">
+                                Inspect ↗
+                            </a>
+                        </div>
                     </div>
-                    <div class="mt-4 pt-3 border-t border-purple-950/40 flex items-center justify-between text-xs">
-                        <span class="text-[11px] font-mono text-zinc-400">${item.meta}</span>
-                        <a href="${item.url}" target="_blank" class="text-purple-400 hover:text-purple-300 font-mono text-xs font-semibold flex items-center gap-1">
-                            Explore ↗
-                        </a>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
 
         function exportJSON() {
-            const blob = new Blob([JSON.stringify(allItems, null, 2)], { type: 'application/json' });
+            if (!snapshotData) return;
+            const blob = new Blob([JSON.stringify(snapshotData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `trends_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `trends_intelligence_${new Date().toISOString().slice(0,10)}.json`;
             a.click();
         }
 
-        window.onload = refreshAllSignals;
+        window.onload = refreshData;
     </script>
 </body>
 </html>

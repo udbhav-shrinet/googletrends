@@ -6,3 +6,4 @@ virtualenv/
 *.csv
 *.json
 !config.json
+!docs/data.json
